@@ -1,27 +1,21 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
 const express = require("express");
-const userRoutes = require('./routes/userRoutes');
+const { ConnexionDB } = require("./commun/connexionDb.js");
+const userRouter = require("./users/route.js");
 
-
+const port = 6001;
+const database = new ConnexionDB();
 const app = express();
+app.use(express.json());
 
-app.use(express.json());  
+app.get("/", (req, res) => {
+  res.status(200).json({ status: "UP" });
+});
 
-app.use('/api', userRoutes);
+//userRoute
+app.use("/users", userRouter);
 
-
-
-// Connect to the database
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("Connected to the database");
-  })
-  .catch((err) => {
-    console.log("Not connected to the database " + err);
+database.generateConnexion().then(() => {
+  app.listen(port, () => {
+    console.log(`Starting server at : ${port}`);
   });
-
-// Listen to port
-app.listen(process.env.PORT, () => console.log("Server is running on port 4000"));
-
-
+});
